@@ -6,15 +6,23 @@ CONTAINER_DB = odoo-postgres
 
 help:
 	@echo "Available commands:"
-	@echo "start           - start the containers"
-	@echo "stop            - stop the containers"
-	@echo "restart         - restart the containers"
-	@echo "console         - open the console of the containers"
-	@echo "logs            - show the logs of the containers"
-	@echo "psql            - open the psql of the database"
-	@echo "logs-db         - show the logs of the database"
-	@echo "logs-odoo       - show the logs of the odoo"
-	@echo "logs-all        - show the logs of all the containers"
+	@echo "start           		- start the containers"
+	@echo "stop            		- stop the containers"
+	@echo "restart         		- restart the containers"
+	@echo "console         		- open the console of the containers"
+	@echo "logs            		- show the logs of the containers"
+	@echo "psql            		- open the psql of the database"
+	@echo "logs-db         		- show the logs of the database"
+	@echo "logs-odoo       		- show the logs of the odoo"
+	@echo "logs-all        		- show the logs of all the containers"
+	@echo "addons <addon_name>  - restart instance and update the addons"
+
+addon:
+	$(call upgrade_addon,$(word 2, $(MAKECMDGOALS)))
+
+define upgrade_addon
+	${DOCKER} exec -it ${CONTAINER_ODOO} odoo --db_host=${CONTAINER_DB} -d $(WEB_DB_NAME) -r $(CONTAINER_ODOO) -w $(CONTAINER_ODOO) -u $(1)
+endef
 
 start:
 	${DOCKER_COMPOSE} up -d
@@ -43,4 +51,4 @@ logs-odoo:
 logs-all:
 	${DOCKER} logs -f ${CONTAINER_ODOO} ${CONTAINER_DB}
 
-.PHONY: help start stop restart console logs logs-db logs-odoo logs-all
+.PHONY: help start stop restart console logs logs-db logs-odoo logs-all addon
