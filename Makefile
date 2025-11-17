@@ -16,13 +16,19 @@ help:
 	@echo "logs-odoo       		- show the logs of the odoo"
 	@echo "logs-all        		- show the logs of all the containers"
 	@echo "addons <addon_name>  - restart instance and update the addons"
+	@echo "run-dev              - run Odoo locally with auto-reload"
 
 addon:
+	${DOCKER_COMPOSE} restart
 	$(call upgrade_addon,$(word 2, $(MAKECMDGOALS)))
 
 define upgrade_addon
-	${DOCKER} exec -it ${CONTAINER_ODOO} odoo --db_host=${CONTAINER_DB} -d $(WEB_DB_NAME) -r $(CONTAINER_ODOO) -w $(CONTAINER_ODOO) -u $(1)
+	${DOCKER} exec -it ${CONTAINER_ODOO} odoo --db_host=${CONTAINER_DB} -d $(WEB_DB_NAME) -r $(CONTAINER_ODOO) -w $(CONTAINER_ODOO) -u $(1) --dev=all
 endef
+
+# Run Odoo locally with auto-reload
+run-dev:
+	./odoo-bin --addons-path=addons,../enterprise/,../tutorials/ -d rd-demo -u estate --dev=all
 
 start:
 	${DOCKER_COMPOSE} up -d
@@ -51,4 +57,4 @@ logs-odoo:
 logs-all:
 	${DOCKER} logs -f ${CONTAINER_ODOO} ${CONTAINER_DB}
 
-.PHONY: help start stop restart console logs logs-db logs-odoo logs-all addon
+.PHONY: help start stop restart console logs logs-db logs-odoo logs-all addon run-dev
