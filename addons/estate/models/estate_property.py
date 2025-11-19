@@ -1,7 +1,7 @@
 import copy
 from odoo import _, api, fields, models
 from dateutil.relativedelta import relativedelta
-
+from odoo.exceptions import UserError
 class EstateProperty(models.Model):
     _name = 'estate.property'
     _description = 'Estate Property'
@@ -76,3 +76,21 @@ class EstateProperty(models.Model):
         else:
             self.garden_area = None
             self.garden_orientation = None
+
+    def action_sold(self):
+        for record in self:
+            if record.state == 'canceled':
+                raise UserError(_('Cannot mark property as sold. Property "%s" is already canceled.') % record.name)
+            elif record.state == 'sold':
+                raise UserError(_('Property "%s" is already marked as sold.') % record.name)
+            else:
+                record.write({'state': 'sold'})
+
+    def action_canceled(self):
+        for record in self:
+            if record.state == 'canceled':
+                raise UserError(_('Property "%s" is already canceled.') % record.name)
+            elif record.state == 'sold':
+                raise UserError(_('Cannot cancel property. Property "%s" is already sold.') % record.name)
+            else:
+                record.write({'state': 'canceled'})
