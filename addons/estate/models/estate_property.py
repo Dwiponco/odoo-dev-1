@@ -1,7 +1,9 @@
 import copy
 from odoo import _, api, fields, models
 from dateutil.relativedelta import relativedelta
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools import float_is_zero, float_compare
+
 class EstateProperty(models.Model):
     _name = 'estate.property'
     _description = 'Estate Property'
@@ -48,6 +50,21 @@ class EstateProperty(models.Model):
     offer_ids = fields.One2many(string='Offers', comodel_name='estate.property.offer', inverse_name='property_id')
     total_area = fields.Float(string='Total Area (sqm)', compute='_compute_total_area')
     best_price = fields.Float(string='Best Offer', compute='_compute_best_price')
+
+    _sql_constraints = [
+        ('check_expected_price', 'CHECK(expected_price > 0)', 'Expected price must be greater than 0'),
+        ('check_selling_price', 'CHECK(selling_price > 0)', 'Selling price must be greater than 0'),
+        ('name_uniq', 'UNIQUE(name)', 'Name must be unique'),
+    ]
+
+    @api.constrains('expected_price','selling_price')
+    def _check_selling_price(self):
+        precision_digits = 2
+        for record in self:
+            if not float_is_zero(record.selling_price, precision_digits=precision_digits):
+                if float_compare(record.selling_price, 0.9 * record.expected_price, precision_digits=precision_digits) < 0:
+                    raise ValidationError('Selling price must be less than 90% of expected price')
+            
 
     @api.depends('living_area', 'garden_area')
     def _compute_total_area(self):
