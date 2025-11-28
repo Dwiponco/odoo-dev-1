@@ -1,17 +1,28 @@
 <odoo>
-    <!-- Action to open the property types -->
+    <!-- Action -->
     <record id="estate_property_tag_action" model="ir.actions.act_window">
         <field name="name">Property Tags</field>
         <field name="res_model">estate.property.tag</field>
         <field name="view_mode">tree,form</field>
     </record>
 
-    <!-- Tree view for the property tags -->
+    <!-- search & filter -->
+    <record id="estate_property_tag_view_search_filter" model="ir.ui.view">
+        <field name="name">estate.property.tag.view.search.filter</field>
+        <field name="model">estate.property.tag</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- tree -->
     <record id="estate_property_tag_view_tree" model="ir.ui.view">
         <field name="name">estate.property.tag.view.tree</field>
         <field name="model">estate.property.tag</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree editable='bottom'>
                 <field name="name"/>
             </tree>
         </field>
@@ -24,7 +35,22 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <field name="name"/>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <notebook>
+                        <page string="Properties">
+                            <field name="property_ids" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="postcode"/>
+                                    <field name="date_availability"/>
+                                    <field name="expected_price"/>
+                                    <field name="selling_price"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>

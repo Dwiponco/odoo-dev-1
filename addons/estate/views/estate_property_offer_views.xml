@@ -1,17 +1,47 @@
 <odoo>
+    <!-- action to open the property offers -->
+    <record id="estate_property_offer_action" model="ir.actions.act_window">
+        <field name="name">Property Offers</field>
+        <field name="res_model">estate.property.offer</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('property_type_id', '=', active_id)]</field>
+    </record>
+
     <!-- Tree view for the property offers -->
     <record id="estate_property_offer_view_tree" model="ir.ui.view">
         <field name="name">estate.property.offer.view.tree</field>
         <field name="model">estate.property.offer</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree 
+            editable="bottom"
+            decoration-success="status == 'accepted'"
+            decoration-danger="status == 'refused'"
+            >
                 <field name="price"/>
                 <field name="partner_id"/>
                 <field name="validity"/>
                 <field name="date_deadline"/>
-                <button name="action_accept" type="object" class="btn-success" string="" icon="fa-check" title="Accept"/>
-                <button name="action_refuse" type="object" class="btn-danger" string="" icon="fa-times" title="Refuse"/>
+                <button 
+                    name="action_accept" 
+                    type="object" 
+                    class="btn-success" 
+                    string="" 
+                    icon="fa-check" 
+                    title="Accept" 
+                    invisible="status != 'pending' or property_state in ['sold', 'canceled', 'offer_received']"
+                />
+                <button 
+                    name="action_refuse" 
+                    type="object" 
+                    class="btn-danger" 
+                    string="" 
+                    icon="fa-times" 
+                    title="Refuse" 
+                    invisible="status != 'pending' or property_state in ['sold', 'canceled', 'offer_received']"
+                />
                 <field name="status"/>
+                <field name="property_state" column_invisible="1"/>
+                <field name="property_type_id" column_invisible='1'/>
             </tree>
         </field>
     </record>

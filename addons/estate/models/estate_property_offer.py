@@ -4,6 +4,7 @@ from odoo.exceptions import UserError
 class EstatePropertyOffer(models.Model):
     _name = 'estate.property.offer'
     _description = 'Estate Property Offer'
+    _order = 'price desc'
 
     price = fields.Float(string='Price', required=True)
     status = fields.Selection(
@@ -17,6 +18,8 @@ class EstatePropertyOffer(models.Model):
     property_id = fields.Many2one(string='Property', comodel_name='estate.property', required=True, copy=False)
     validity = fields.Integer(string='Validity (days)', default=7)
     date_deadline = fields.Date(string='Deadline', compute='_compute_date_deadline', inverse='_inverse_date_deadline')
+    property_state = fields.Selection(related='property_id.state')
+    property_type_id = fields.Many2one(related='property_id.property_type_id', store=True)
 
     _sql_constraints = [
         ('check_price', 'CHECK(price > 1)', 'Price must be greater than 0.'),
@@ -52,5 +55,5 @@ class EstatePropertyOffer(models.Model):
         for record in self:
             if record.property_id.state == 'sold':
                 raise UserError('Cannot refuse offer. Property is already sold.')
-            record.state = 'refused'
+            record.status = 'refused'
         return True
